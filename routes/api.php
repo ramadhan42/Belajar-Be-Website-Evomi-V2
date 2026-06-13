@@ -22,6 +22,11 @@ Route::get('/quiz/questions', [QuizController::class, 'getQuestions']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/profile', [UserController::class, 'profile']);
+
+    // Rute Manajemen Profil User
+    Route::get('/user/profile', [UserController::class, 'show']);     // Endpoint untuk Ambil Profil (Read)
+    Route::put('/user/profile', [UserController::class, 'update']);   // Endpoint untuk Update Profil (Update)
+    Route::delete('/user/profile', [UserController::class, 'destroy']); // Endpoint untuk Hapus Akun (Delete)
     
     // Product Management (Idealnya ini diberi middleware khusus admin)
     Route::post('/products', [ProductController::class, 'store']);
