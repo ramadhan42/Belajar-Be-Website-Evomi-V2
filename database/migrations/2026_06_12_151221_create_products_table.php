@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('base_note')->nullable();
 
             // Gambar & Spesifikasi
+            $table->string('image_produk_belanja')->nullable();
             $table->string('image_1');
             $table->string('image_2')->nullable();
             $table->string('image_3')->nullable();

@@ -12,24 +12,30 @@ use Illuminate\Support\Facades\Route;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+// Katalog Produk (Public)
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
 
-Route::get('/quiz/questions', [QuizController::class, 'getQuestions']); // Ambil soal & opsi kuis
+Route::get('/quiz/questions', [QuizController::class, 'getQuestions']);
 
 // Protected Routes (Butuh Login)
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/profile', [UserController::class, 'profile']);
     
+    // Product Management (Idealnya ini diberi middleware khusus admin)
+    Route::post('/products', [ProductController::class, 'store']);
+    Route::post('/products/{id}', [ProductController::class, 'update']); // Menggunakan POST agar Form-Data file bisa terbaca
+    Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+
     // Cart & Wishlist
     Route::apiResource('carts', CartController::class)->only(['index', 'store', 'destroy']);
     Route::apiResource('wishlists', WishlistController::class)->only(['index', 'store', 'destroy']);
     
     // Quiz Actions
     Route::post('/quiz/submit', [QuizController::class, 'submitQuiz']);
-    Route::get('/quiz/history', [QuizController::class, 'history']); // Lihat histori kuis user
+    Route::get('/quiz/history', [QuizController::class, 'history']);
     
-    // Shopping Needs / Histori Belanja
+    // Shopping Needs
     Route::get('/shopping-history', [UserController::class, 'shoppingHistory']);
 });
