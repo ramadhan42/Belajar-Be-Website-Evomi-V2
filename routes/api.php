@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\WishlistController;
 use App\Http\Controllers\Api\QuizController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\OrderController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -43,4 +44,5 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Shopping Needs
     Route::get('/shopping-history', [UserController::class, 'shoppingHistory']);
+    Route::post('/checkout', [OrderController::class, 'checkout']);
 });

@@ -33,10 +33,10 @@ class UserController extends Controller
             'nama_lengkap'   => ['nullable', 'string', 'max:255'],
             'alamat_lengkap' => ['nullable', 'string'],
             'email'          => [
-                'required', 
-                'string', 
-                'email', 
-                'max:255', 
+                'required',
+                'string',
+                'email',
+                'max:255',
                 Rule::unique('users')->ignore($user->id) // Abaikan email sendiri saat cek keunikan
             ],
         ]);
@@ -70,5 +70,21 @@ class UserController extends Controller
             'success' => true,
             'message' => 'Akun Anda telah berhasil dihapus secara permanen.'
         ], 200);
+    }
+
+    /**
+     * Mengambil riwayat belanja user
+     */
+    public function shoppingHistory(Request $request)
+    {
+        $user = $request->user();
+
+        // Pastikan namespace Model Order sesuai dengan lokasi file Anda
+        $history = \App\Models\Order::with('product') // Eager loading untuk mengambil data produk
+            ->where('user_id', $user->id)             // Memastikan hanya mengambil data milik user yang login
+            ->orderBy('created_at', 'desc')           // Urutkan dari yang terbaru
+            ->get();
+
+        return response()->json($history);
     }
 }
