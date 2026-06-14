@@ -38,4 +38,15 @@ class CartController extends Controller
 
         return response()->json(['message' => 'Ditambahkan ke keranjang', 'cart' => $cart], 201);
     }
+
+    public function destroy($id)
+    {
+        $cartItem = Cart::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        $cartItem->delete();
+
+        return response()->json(['message' => 'Berhasil dihapus']);
+    }
 }
