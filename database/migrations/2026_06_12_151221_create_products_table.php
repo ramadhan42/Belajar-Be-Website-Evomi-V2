@@ -12,6 +12,10 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('description');
+            
+            // TAMBAHKAN FIELD COLOR DI SINI
+            $table->string('color')->nullable()->comment('Kode hex warna, misal: #FF5733'); 
+
             $table->decimal('price', 12, 2);
 
             // Karakter Parfum (PENTING: Untuk relasi dengan Hasil Kuis)

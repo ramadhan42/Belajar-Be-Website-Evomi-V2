@@ -13,7 +13,7 @@ class ProductController extends Controller
     // READ: Ambil semua produk
     public function index()
     {
-        $products = Product::all(); // Bisa diganti paginate(10) jika data sudah banyak
+        $products = Product::all();
         return response()->json(['success' => true, 'data' => $products], 200);
     }
 
@@ -35,6 +35,7 @@ class ProductController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
+            'color' => 'nullable|string|max:50', // <--- TAMBAHKAN VALIDASI COLOR DI SINI
             'price' => 'required|numeric',
             'personality_type' => 'nullable|in:prestige,peaceful_calm,rebel_brave,sweet_shy',
             'top_note' => 'nullable|string|max:255',
@@ -44,7 +45,7 @@ class ProductController extends Controller
             'image_2' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:70048',
             'image_3' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:70048',
             'image_4' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:70048',
-            'image_produk_belanja' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:70048', // <--- TAMBAHKAN VALIDASI INI
+            'image_produk_belanja' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:70048',
             'bottle_size' => 'required|integer',
             'perfume_type' => 'required|string|max:255',
             'gender' => 'required|in:unisex,male,female',
@@ -56,7 +57,6 @@ class ProductController extends Controller
             return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
         }
 
-       // TAMBAHKAN 'image_produk_belanja' DI SINI
         $data = $request->except(['image_1', 'image_2', 'image_3', 'image_4', 'image_produk_belanja']);
 
         // Upload gambar ke storage/app/public/products
@@ -88,6 +88,7 @@ class ProductController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'string|max:255',
             'description' => 'string',
+            'color' => 'nullable|string|max:50', // <--- TAMBAHKAN VALIDASI COLOR DI SINI
             'price' => 'numeric',
             'personality_type' => 'nullable|in:prestige,peaceful_calm,rebel_brave,sweet_shy',
             'top_note' => 'nullable|string|max:255',
@@ -97,7 +98,7 @@ class ProductController extends Controller
             'image_2' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'image_3' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'image_4' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'image_produk_belanja' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // <--- TAMBAHKAN VALIDASI INI
+            'image_produk_belanja' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'bottle_size' => 'integer',
             'perfume_type' => 'string|max:255',
             'gender' => 'in:unisex,male,female',
@@ -109,11 +110,8 @@ class ProductController extends Controller
             return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
         }
 
-        // TAMBAHKAN 'image_produk_belanja' DI SINI
         $data = $request->except(['image_1', 'image_2', 'image_3', 'image_4', 'image_produk_belanja']);
 
-        // Ganti gambar lama jika ada gambar baru yang diupload
-        // TAMBAHKAN 'image_produk_belanja' DI SINI JUGA
         $imageFields = ['image_1', 'image_2', 'image_3', 'image_4', 'image_produk_belanja'];
         foreach ($imageFields as $field) {
             if ($request->hasFile($field)) {
@@ -144,7 +142,6 @@ class ProductController extends Controller
             return response()->json(['success' => false, 'message' => 'Produk tidak ditemukan'], 404);
         }
 
-        // Hapus file gambar dari storage sebelum menghapus data
         $imageFields = ['image_1', 'image_2', 'image_3', 'image_4', 'image_produk_belanja'];
         foreach ($imageFields as $field) {
             if ($product->$field) {
