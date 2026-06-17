@@ -45,4 +45,5 @@ Route::middleware('auth:sanctum')->group(function () {
     // Shopping Needs
     Route::get('/shopping-history', [UserController::class, 'shoppingHistory']);
     Route::post('/checkout', [OrderController::class, 'checkout']);
+    Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
 });

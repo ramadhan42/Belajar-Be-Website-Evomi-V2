@@ -16,7 +16,7 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Data profil berhasil diambil.',
-            'data'    => $request->user()
+            'data' => $request->user()
         ], 200);
     }
 
@@ -29,10 +29,10 @@ class UserController extends Controller
 
         // Validasi inputan dari frontend
         $validated = $request->validate([
-            'name'           => ['required', 'string', 'max:255'],
-            'nama_lengkap'   => ['nullable', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
+            'nama_lengkap' => ['nullable', 'string', 'max:255'],
             'alamat_lengkap' => ['nullable', 'string'],
-            'email'          => [
+            'email' => [
                 'required',
                 'string',
                 'email',
@@ -47,7 +47,7 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Profil Anda berhasil diperbarui.',
-            'data'    => $user
+            'data' => $user
         ], 200);
     }
 
