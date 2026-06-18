@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\WishlistController;
 use App\Http\Controllers\Api\QuizController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\NewsletterController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -18,6 +19,10 @@ Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
 
 Route::get('/quiz/questions', [QuizController::class, 'getQuestions']);
+
+
+// Route untuk pendaftaran buletin footer
+Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe']);
 
 // Protected Routes (Butuh Login)
 Route::middleware('auth:sanctum')->group(function () {
@@ -45,5 +50,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Shopping Needs
     Route::get('/shopping-history', [UserController::class, 'shoppingHistory']);
     Route::post('/checkout', [OrderController::class, 'checkout']);
+    Route::patch('/orders/{id}/confirm', [OrderController::class, 'confirmReceipt']);
     Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
+
+    // Tambahkan rute ini untuk mengubah status via Postman (Simulasi Admin)
+    Route::patch('/orders/{id}/status', [OrderController::class, 'updateStatus']);
+
 });

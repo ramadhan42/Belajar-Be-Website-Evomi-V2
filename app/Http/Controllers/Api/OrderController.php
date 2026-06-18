@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Cart;
 use App\Models\Order;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
 {
@@ -19,7 +20,6 @@ class OrderController extends Controller
             return response()->json(['message' => 'Daftar pesanan kosong'], 400);
         }
 
-        // Ambil satu waktu seragam untuk semua item dalam 1 keranjang checkout ini
         $now = now();
 
         DB::transaction(function () use ($user, $items, $now) {
@@ -29,25 +29,29 @@ class OrderController extends Controller
                     'product_id' => $item['product_id'],
                     'quantity' => $item['quantity'],
                     'total_price' => $item['price'] * $item['quantity'],
-                    'status' => 'Selesai',
-                    'created_at' => $now, // Paksa gunakan waktu yang sama
+                    'status' => 'menunggu_konfirmasi', 
+                    'created_at' => $now, 
                     'updated_at' => $now
                 ]);
             }
 
-            // Hapus keranjang user setelah checkout berhasil
             Cart::where('user_id', $user->id)->delete();
         });
 
         return response()->json(['message' => 'Checkout berhasil!'], 200);
     }
 
-    // Tambahkan di dalam OrderController.php
+    public function confirmReceipt($id, Request $request)
+    {
+        $order = Order::where('user_id', $request->user()->id)->where('id', $id)->firstOrFail();
+        $order->update(['status' => 'selesai']);
+
+        return response()->json(['message' => 'Pesanan telah dikonfirmasi diterima dan selesai.']);
+    }
+
     public function destroy($id, Request $request)
     {
         $user = $request->user();
-
-        // Cari pesanan berdasarkan ID dan pastikan itu milik user yang sedang login
         $order = Order::where('user_id', $user->id)->where('id', $id)->first();
 
         if (!$order) {
@@ -57,5 +61,38 @@ class OrderController extends Controller
         $order->delete();
 
         return response()->json(['message' => 'Riwayat pesanan berhasil dihapus'], 200);
+    }
+
+    /**
+     * Skenario Admin / Postman: Memperbarui status pesanan secara spesifik
+     */
+    public function updateStatus($id, Request $request)
+    {
+        // 1. Validasi input status agar hanya menerima status yang diizinkan oleh sistem
+        $request->validate([
+            'status' => [
+                'required',
+                'string',
+                Rule::in(['menunggu_konfirmasi', 'pengemasan', 'dalam_perjalanan', 'diterima'])
+            ]
+        ]);
+
+        // 2. Cari data pesanan berdasarkan ID pesanan (Global / Tanpa scope user karena ini aksi simulasi admin)
+        $order = Order::find($id);
+
+        if (!$order) {
+            return response()->json(['message' => 'Pesanan tidak ditemukan.'], 404);
+        }
+
+        // 3. Update status pesanan tersebut
+        $order->update([
+            'status' => $request->status
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status pesanan berhasil diperbarui menjadi: ' . $request->status,
+            'data' => $order
+        ], 200);
     }
 }
