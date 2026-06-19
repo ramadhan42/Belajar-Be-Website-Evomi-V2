@@ -1,13 +1,14 @@
 <?php
 
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\ProductController;
-use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\Api\NewsletterController;
 use App\Http\Controllers\Api\WishlistController;
+use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\QuizController;
 use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\Api\OrderController;
-use App\Http\Controllers\Api\NewsletterController;
+use App\Http\Controllers\ContactMessageController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -20,9 +21,14 @@ Route::get('/products/{id}', [ProductController::class, 'show']);
 
 Route::get('/quiz/questions', [QuizController::class, 'getQuestions']);
 
-
 // Route untuk pendaftaran buletin footer
 Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe']);
+
+// Endpoint untuk mengambil semua pesan (GET)
+Route::get('/contact', [ContactMessageController::class, 'index']);
+
+// Endpoint untuk mengirim pesan baru (POST)
+Route::post('/contact', [ContactMessageController::class, 'store']);
 
 // Protected Routes (Butuh Login)
 Route::middleware('auth:sanctum')->group(function () {
