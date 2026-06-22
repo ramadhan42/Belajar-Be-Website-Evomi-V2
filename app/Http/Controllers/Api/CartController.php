@@ -40,7 +40,6 @@ class CartController extends Controller
     }
 
     // Di dalam CartController.php
-    // Di dalam CartController.php
     public function update(Request $request, $id)
     {
         // Validasi: Pastikan quantity ada dan minimal 1
