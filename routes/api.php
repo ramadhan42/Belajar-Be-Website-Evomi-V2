@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\QuizController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\ContactMessageController;
+use App\Http\Controllers\Api\OrderTrackingController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -32,6 +33,14 @@ Route::get('/contact', [ContactMessageController::class, 'index']);
 
 // Endpoint untuk mengirim pesan baru (POST)
 Route::post('/contact', [ContactMessageController::class, 'store']);
+
+Route::prefix('trackings')->group(function () {
+    Route::get('/', [OrderTrackingController::class, 'index']); // Mendapatkan semua data
+    Route::post('/', [OrderTrackingController::class, 'store']); // Membuat data baru
+    Route::get('/{order_id}', [OrderTrackingController::class, 'show']); // Detail data spesifik
+    Route::put('/{order_id}', [OrderTrackingController::class, 'update']); // Memperbarui data (Update)
+    Route::delete('/{order_id}', [OrderTrackingController::class, 'destroy']); // Menghapus data
+});
 
 // Protected Routes (Butuh Login)
 Route::middleware('auth:sanctum')->group(function () {
@@ -65,8 +74,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/checkout', [OrderController::class, 'checkout']);
     Route::patch('/orders/{id}/confirm', [OrderController::class, 'confirmReceipt']);
     Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
+    Route::get('/orders/{id}', [OrderController::class, 'show']);
 
     // Tambahkan rute ini untuk mengubah status via Postman (Simulasi Admin)
     Route::patch('/orders/{id}/status', [OrderController::class, 'updateStatus']);
+
 
 });

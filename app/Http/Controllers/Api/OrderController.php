@@ -11,26 +11,64 @@ use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
 {
+    /**
+     * READ: Mengambil detail satu pesanan berdasarkan ID untuk user yang login
+     */
+    public function show($id, Request $request)
+    {
+        $user = $request->user();
+
+        $order = Order::with('product') 
+            ->where('user_id', $user->id)
+            ->where('id', $id)
+            ->first();
+
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pesanan tidak ditemukan atau Anda tidak memiliki akses.'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Detail pesanan berhasil diambil.',
+            'data' => $order
+        ], 200);
+    }
+
     public function checkout(Request $request)
     {
         $user = $request->user();
         $items = $request->input('items');
+        $invoiceId = $request->input('invoice_id'); 
+        
+        // Mengambil metode pembayaran dari request (menggunakan default string kosong jika tidak ada)
+        $metodePembayaran = $request->input('payment_method', $request->input('metode_pembayaran', ''));
 
         if (empty($items)) {
             return response()->json(['message' => 'Daftar pesanan kosong'], 400);
         }
 
+        if (!$invoiceId) {
+            return response()->json(['message' => 'Invoice ID tidak valid'], 400);
+        }
+
         $now = now();
 
-        DB::transaction(function () use ($user, $items, $now) {
-            foreach ($items as $item) {
+        DB::transaction(function () use ($user, $items, $invoiceId, $now, $metodePembayaran) {
+            foreach ($items as $index => $item) {
+                $orderId = count($items) > 1 ? "{$invoiceId}-" . ($index + 1) : $invoiceId;
+
                 Order::create([
+                    'id' => $orderId, 
                     'user_id' => $user->id,
                     'product_id' => $item['product_id'],
                     'quantity' => $item['quantity'],
                     'total_price' => $item['price'] * $item['quantity'],
-                    'status' => 'menunggu_konfirmasi', 
-                    'created_at' => $now, 
+                    'status' => 'menunggu_konfirmasi',
+                    'metode_pembayaran' => $metodePembayaran, // <-- Simpan metode pembayaran di sini
+                    'created_at' => $now,
                     'updated_at' => $now
                 ]);
             }
@@ -64,34 +102,41 @@ class OrderController extends Controller
     }
 
     /**
-     * Skenario Admin / Postman: Memperbarui status pesanan secara spesifik
+     * Skenario Admin / Postman: Memperbarui status dan metode pembayaran pesanan secara spesifik
      */
     public function updateStatus($id, Request $request)
     {
-        // 1. Validasi input status agar hanya menerima status yang diizinkan oleh sistem
+        // 1. Validasi input
         $request->validate([
             'status' => [
                 'required',
                 'string',
                 Rule::in(['menunggu_konfirmasi', 'pengemasan', 'dalam_perjalanan', 'diterima'])
-            ]
+            ],
+            // Validasi opsional untuk update metode pembayaran
+            'metode_pembayaran' => 'sometimes|string|nullable' 
         ]);
 
-        // 2. Cari data pesanan berdasarkan ID pesanan (Global / Tanpa scope user karena ini aksi simulasi admin)
+        // 2. Cari data
         $order = Order::find($id);
 
         if (!$order) {
             return response()->json(['message' => 'Pesanan tidak ditemukan.'], 404);
         }
 
-        // 3. Update status pesanan tersebut
-        $order->update([
-            'status' => $request->status
-        ]);
+        // 3. Update status
+        $order->status = $request->status;
+        
+        // 4. Update metode pembayaran jika disisipkan pada payload request
+        if ($request->has('metode_pembayaran')) {
+            $order->metode_pembayaran = $request->metode_pembayaran;
+        }
+
+        $order->save();
 
         return response()->json([
             'success' => true,
-            'message' => 'Status pesanan berhasil diperbarui menjadi: ' . $request->status,
+            'message' => 'Data pesanan berhasil diperbarui.',
             'data' => $order
         ], 200);
     }

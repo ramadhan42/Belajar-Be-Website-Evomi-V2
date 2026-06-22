@@ -6,7 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
-    protected $fillable = ['user_id', 'product_id', 'quantity', 'total_price', 'status'];
+    // Tambahkan metode_pembayaran di sini
+    protected $fillable = ['id', 'user_id', 'product_id', 'quantity', 'total_price', 'status', 'metode_pembayaran'];
+
+    public $incrementing = false;      // Matikan auto-increment
+    protected $keyType = 'string';
 
     // Relasi: Satu pesanan milik satu produk
     public function product()
