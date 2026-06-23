@@ -42,6 +42,19 @@ Route::prefix('trackings')->group(function () {
     Route::delete('/{order_id}', [OrderTrackingController::class, 'destroy']); // Menghapus data
 });
 
+// ==========================================
+// ADMIN DASHBOARD ROUTES
+// ==========================================
+Route::prefix('admin')->group(function () {
+    Route::get('/orders', [OrderController::class, 'getAllOrders']);
+    Route::get('/carts', [CartController::class, 'getAllCarts']);
+    Route::get('/wishlists', [WishlistController::class, 'getAllWishlists']);
+
+    // RUTE BARU:
+    Route::get('/users', [UserController::class, 'getAllUsers']);
+    Route::get('/revenue', [OrderController::class, 'getTotalRevenue']);
+});
+
 // Protected Routes (Butuh Login)
 Route::middleware('auth:sanctum')->group(function () {
 

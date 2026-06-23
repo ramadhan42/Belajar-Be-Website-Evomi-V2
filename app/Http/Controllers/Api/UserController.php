@@ -21,6 +21,21 @@ class UserController extends Controller
     }
 
     /**
+     * READ ALL: Mengambil semua user yang terdaftar (Untuk Admin)
+     */
+    public function getAllUsers()
+    {
+        // Mengambil semua user kecuali data yang sensitif (password, token, dll otomatis tersembunyi)
+        $users = \App\Models\User::latest()->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Semua data user berhasil diambil.',
+            'data' => $users
+        ], 200);
+    }
+
+    /**
      * UPDATE: Memperbarui data profil user (termasuk nama & alamat lengkap).
      */
     public function update(Request $request)

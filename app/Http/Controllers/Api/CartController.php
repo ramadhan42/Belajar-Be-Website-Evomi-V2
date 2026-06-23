@@ -13,6 +13,21 @@ class CartController extends Controller
         return response()->json($request->user()->carts()->with('product')->get());
     }
 
+    /**
+     * READ ALL: Mengambil semua data keranjang dari semua user (Untuk Admin)
+     */
+    public function getAllCarts()
+    {
+        // Memuat data produk dan user pemilik keranjang
+        $carts = Cart::with(['product', 'user'])->latest()->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Semua data keranjang berhasil diambil.',
+            'data' => $carts
+        ], 200);
+    }
+
     public function store(Request $request)
     {
         $request->validate([

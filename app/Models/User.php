@@ -11,13 +11,30 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'email', 'password', 'nama_lengkap',   // Tambahkan ini
-    'alamat_lengkap'];
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'nama_lengkap',   // Tambahkan ini
+        'alamat_lengkap'
+    ];
     protected $hidden = ['password', 'remember_token'];
     protected $casts = ['email_verified_at' => 'datetime', 'password' => 'hashed'];
 
-    public function carts() { return $this->hasMany(Cart::class); }
-    public function wishlists() { return $this->hasMany(Wishlist::class); }
-    public function shoppingNeeds() { return $this->hasMany(ShoppingNeed::class); }
-    public function quizAttempts() { return $this->hasMany(QuizAttempt::class); }
+    public function carts()
+    {
+        return $this->hasMany(Cart::class);
+    }
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+    public function shoppingNeeds()
+    {
+        return $this->hasMany(ShoppingNeed::class);
+    }
+    public function quizAttempts()
+    {
+        return $this->hasMany(QuizAttempt::class);
+    }
 }

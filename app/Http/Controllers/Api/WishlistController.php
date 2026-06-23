@@ -16,6 +16,21 @@ class WishlistController extends Controller
             ->get();
     }
 
+    /**
+     * READ ALL: Mengambil semua data wishlist dari semua user (Untuk Admin)
+     */
+    public function getAllWishlists()
+    {
+        // Memuat data produk dan user pemilik wishlist
+        $wishlists = Wishlist::with(['product', 'user'])->latest()->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Semua data wishlist berhasil diambil.',
+            'data' => $wishlists
+        ], 200);
+    }
+
     public function store(Request $request)
     {
         // Validasi request
