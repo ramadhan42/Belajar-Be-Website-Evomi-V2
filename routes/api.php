@@ -19,6 +19,9 @@ use Illuminate\Support\Facades\Route;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+// RUTE BARU: Endpoint khusus untuk menerima sinyal tutup browser dari Next.js Beacon
+Route::post('/logout-beacon', [AuthController::class, 'logoutBeacon']);
+
 // Katalog Produk (Public)
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
@@ -63,7 +66,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Rute Manajemen Profil User, UserController
     Route::get('/user/profile', [UserController::class, 'show']);     // Endpoint untuk Ambil Profil (Read)
-    Route::put('/user/profile', [UserController::class, 'update']);   // Endpoint untuk Update Profil (Update)
+    Route::post('/user/profile', [UserController::class, 'update']);   // Endpoint untuk Update Profil (Update)
     Route::delete('/user/profile', [UserController::class, 'destroy']); // Endpoint untuk Hapus Akun (Delete)
     // Route::get('/profile', [UserController::class, 'profile']);
 
@@ -91,6 +94,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Tambahkan rute ini untuk mengubah status via Postman (Simulasi Admin)
     Route::patch('/orders/{id}/status', [OrderController::class, 'updateStatus']);
-
 
 });

@@ -85,9 +85,19 @@ class CartController extends Controller
 
     public function destroy($id)
     {
-        $cartItem = Cart::where('id', $id)
-            ->where('user_id', auth()->id())
-            ->firstOrFail();
+        // Cari item berdasarkan ID
+        $cartItem = Cart::find($id);
+
+        if (!$cartItem) {
+            return response()->json(['message' => 'Item tidak ditemukan'], 404);
+        }
+
+        // Cek otorisasi:
+        // User ID 1 adalah admin (bisa hapus semua)
+        // User lain hanya bisa hapus jika cart milik mereka sendiri
+        if (auth()->id() !== 1 && $cartItem->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Anda tidak diizinkan menghapus item ini.'], 403);
+        }
 
         $cartItem->delete();
 

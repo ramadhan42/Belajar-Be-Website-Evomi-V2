@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Laravel\Sanctum\PersonalAccessToken; // Pastikan ini di-import
 
 class AuthController extends Controller
 {
@@ -46,5 +47,28 @@ class AuthController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
         return response()->json(['message' => 'Logged out successfully']);
+    }
+
+    /**
+     * Logout khusus via navigator.sendBeacon
+     */
+    public function logoutBeacon(Request $request)
+    {
+        // Ambil token string dari body request FormData
+        $tokenString = $request->input('token');
+
+        if ($tokenString) {
+            // Karena plainTextToken Sanctum biasanya berbentuk "id|token_hash", 
+            // kita cari token asli tersebut menggunakan static method findToken dari Sanctum
+            $token = PersonalAccessToken::findToken($tokenString);
+
+            if ($token) {
+                // Hapus token dari database (menghancurkan sesi login)
+                $token->delete();
+                return response()->json(['status' => 'success', 'message' => 'Beacon logout successful']);
+            }
+        }
+
+        return response()->json(['status' => 'error', 'message' => 'Token invalid or not found'], 400);
     }
 }

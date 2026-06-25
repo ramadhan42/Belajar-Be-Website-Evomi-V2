@@ -38,30 +38,31 @@ class UserController extends Controller
     /**
      * UPDATE: Memperbarui data profil user (termasuk nama & alamat lengkap).
      */
+    // File: app/Http/Controllers/Api/UserController.php
     public function update(Request $request)
     {
         $user = $request->user();
 
-        // Validasi inputan dari frontend
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'nama_lengkap' => ['nullable', 'string', 'max:255'],
             'alamat_lengkap' => ['nullable', 'string'],
-            'email' => [
-                'required',
-                'string',
-                'email',
-                'max:255',
-                Rule::unique('users')->ignore($user->id) // Abaikan email sendiri saat cek keunikan
-            ],
+            'phone' => ['nullable', 'string', 'max:20'], // Tambahkan validasi phone
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'avatar_profile' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'], // Validasi gambar
         ]);
 
-        // Proses update ke database
+        // Handle File Upload
+        if ($request->hasFile('avatar_profile')) {
+            $path = $request->file('avatar_profile')->store('avatars', 'public');
+            $validated['avatar_profile'] = $path;
+        }
+
         $user->update($validated);
 
         return response()->json([
             'success' => true,
-            'message' => 'Profil Anda berhasil diperbarui.',
+            'message' => 'Profil berhasil diperbarui.',
             'data' => $user
         ], 200);
     }

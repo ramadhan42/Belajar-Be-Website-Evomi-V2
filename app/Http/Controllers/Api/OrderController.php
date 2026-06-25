@@ -136,13 +136,19 @@ class OrderController extends Controller
         return response()->json(['message' => 'Pesanan telah dikonfirmasi diterima dan selesai.']);
     }
 
+    // Di dalam App\Http\Controllers\Api\OrderController
+
     public function destroy($id, Request $request)
     {
-        $user = $request->user();
-        $order = Order::where('user_id', $user->id)->where('id', $id)->first();
+        $order = Order::find($id); // Cari berdasarkan ID saja
 
         if (!$order) {
             return response()->json(['message' => 'Riwayat pesanan tidak ditemukan'], 404);
+        }
+
+        // Otorisasi: Admin (ID 1) atau Pemilik pesanan bisa hapus
+        if (auth()->id() !== 1 && $order->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Anda tidak diizinkan menghapus pesanan ini.'], 403);
         }
 
         $order->delete();
@@ -153,6 +159,8 @@ class OrderController extends Controller
     /**
      * Skenario Admin / Postman: Memperbarui status dan metode pembayaran pesanan secara spesifik
      */
+    // Di dalam App\Http\Controllers\Api\OrderController
+
     public function updateStatus($id, Request $request)
     {
         // 1. Validasi input
@@ -160,9 +168,8 @@ class OrderController extends Controller
             'status' => [
                 'required',
                 'string',
-                Rule::in(['menunggu_konfirmasi', 'pengemasan', 'dalam_perjalanan', 'diterima'])
+                Rule::in(['menunggu_konfirmasi', 'pengemasan', 'dalam_perjalanan', 'diterima', 'dibatalkan', 'selesai'])
             ],
-            // Validasi opsional untuk update metode pembayaran
             'metode_pembayaran' => 'sometimes|string|nullable'
         ]);
 
@@ -173,10 +180,14 @@ class OrderController extends Controller
             return response()->json(['message' => 'Pesanan tidak ditemukan.'], 404);
         }
 
-        // 3. Update status
+        // 3. Otorisasi: Hanya user ID 1 atau pemilik pesanan yang bisa mengupdate
+        if (auth()->id() !== 1 && $order->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Anda tidak diizinkan memperbarui pesanan ini.'], 403);
+        }
+
+        // 4. Update status
         $order->status = $request->status;
 
-        // 4. Update metode pembayaran jika disisipkan pada payload request
         if ($request->has('metode_pembayaran')) {
             $order->metode_pembayaran = $request->metode_pembayaran;
         }
