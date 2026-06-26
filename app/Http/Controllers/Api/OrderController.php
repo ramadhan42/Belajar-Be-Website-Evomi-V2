@@ -78,6 +78,7 @@ class OrderController extends Controller
             'message' => 'Data ringkasan pendapatan admin (termasuk ongkir) berhasil dimuat.',
             'data' => [
                 'total_revenue' => (int) $totalRevenueWithShipping,
+                'total_revenue_clean' => (int) $totalProductPrice,
                 'total_orders_count' => $totalOrdersCount,
                 'total_items_sold' => (int) $totalQuantitySold,
                 'total_shipping_cost' => (int) $totalShippingRevenue,
@@ -137,7 +138,6 @@ class OrderController extends Controller
     }
 
     // Di dalam App\Http\Controllers\Api\OrderController
-
     public function destroy($id, Request $request)
     {
         $order = Order::find($id); // Cari berdasarkan ID saja
@@ -160,7 +160,6 @@ class OrderController extends Controller
      * Skenario Admin / Postman: Memperbarui status dan metode pembayaran pesanan secara spesifik
      */
     // Di dalam App\Http\Controllers\Api\OrderController
-
     public function updateStatus($id, Request $request)
     {
         // 1. Validasi input

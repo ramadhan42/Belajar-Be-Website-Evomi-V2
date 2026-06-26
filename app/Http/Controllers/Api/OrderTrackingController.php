@@ -78,8 +78,8 @@ class OrderTrackingController extends Controller
                 'orderId' => $tracking->order_id,
                 'resi' => $tracking->tracking_number,
                 'courier' => $tracking->courier,
-                'estimatedDelivery' => $tracking->estimated_delivery 
-                    ? $tracking->estimated_delivery->translatedFormat('d F Y') 
+                'estimatedDelivery' => $tracking->estimated_delivery
+                    ? $tracking->estimated_delivery->translatedFormat('d F Y')
                     : 'Belum ada estimasi',
                 'currentStatus' => $tracking->status,
                 'recipient' => [

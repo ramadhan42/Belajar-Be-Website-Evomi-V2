@@ -89,6 +89,42 @@ class UserController extends Controller
     }
 
     /**
+     * DELETE: Menghapus user berdasarkan ID (Untuk Admin)
+     */
+    public function destroyByAdmin($id)
+    {
+        $user = \App\Models\User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User tidak ditemukan.'
+            ], 404);
+        }
+
+        // Opsional: Mencegah admin menghapus dirinya sendiri dari tabel ini
+        if (auth()->check() && auth()->id() === $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak bisa menghapus akun Anda sendiri dari halaman ini.'
+            ], 403);
+        }
+
+        // Hapus token auth aktif (jika ada)
+        if (method_exists($user, 'tokens')) {
+            $user->tokens()->delete();
+        }
+
+        // Hapus user
+        $user->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User berhasil dihapus oleh Admin.'
+        ], 200);
+    }
+
+    /**
      * Mengambil riwayat belanja user
      */
     public function shoppingHistory(Request $request)

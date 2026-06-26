@@ -56,6 +56,8 @@ Route::prefix('admin')->group(function () {
     // RUTE BARU:
     Route::get('/users', [UserController::class, 'getAllUsers']);
     Route::get('/revenue', [OrderController::class, 'getTotalRevenue']);
+    
+    Route::delete('/users/{id}', [UserController::class, 'destroyByAdmin']);
 });
 
 // Protected Routes (Butuh Login)
