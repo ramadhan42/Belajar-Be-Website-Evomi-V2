@@ -89,44 +89,74 @@ class OrderController extends Controller
 
     public function checkout(Request $request)
     {
+        // 1. Ambil user yang sudah diverifikasi oleh auth:sanctum
         $user = $request->user();
+
+        // 2. Validasi keamanan ganda (Jika token tidak valid / kedaluwarsa)
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sesi login tidak valid. Harap login kembali.'
+            ], 401);
+        }
+
         $items = $request->input('items');
         $invoiceId = $request->input('invoice_id');
+        $metodePembayaran = $request->input('payment_method', 'Cash on Delivery');
 
-        // Mengambil metode pembayaran dari request (menggunakan default string kosong jika tidak ada)
-        $metodePembayaran = $request->input('payment_method', $request->input('metode_pembayaran', ''));
-
-        if (empty($items)) {
-            return response()->json(['message' => 'Daftar pesanan kosong'], 400);
+        // 3. Validasi kelengkapan data request
+        if (empty($items) || !is_array($items)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Daftar pesanan kosong atau tidak valid'
+            ], 400);
         }
 
         if (!$invoiceId) {
-            return response()->json(['message' => 'Invoice ID tidak valid'], 400);
+            return response()->json([
+                'success' => false,
+                'message' => 'Invoice ID tidak valid'
+            ], 400);
         }
 
         $now = now();
 
-        DB::transaction(function () use ($user, $items, $invoiceId, $now, $metodePembayaran) {
-            foreach ($items as $index => $item) {
-                $orderId = count($items) > 1 ? "{$invoiceId}-" . ($index + 1) : $invoiceId;
+        // 4. Proses Database dengan Transaction yang aman
+        try {
+            DB::transaction(function () use ($user, $items, $invoiceId, $now, $metodePembayaran) {
+                foreach ($items as $index => $item) {
+                    $orderId = count($items) > 1 ? "{$invoiceId}-" . ($index + 1) : $invoiceId;
 
-                Order::create([
-                    'id' => $orderId,
-                    'user_id' => $user->id,
-                    'product_id' => $item['product_id'],
-                    'quantity' => $item['quantity'],
-                    'total_price' => $item['price'] * $item['quantity'],
-                    'status' => 'menunggu_konfirmasi',
-                    'metode_pembayaran' => $metodePembayaran, // <-- Simpan metode pembayaran di sini
-                    'created_at' => $now,
-                    'updated_at' => $now
-                ]);
-            }
+                    Order::create([
+                        'id' => $orderId,
+                        'user_id' => $user->id, // Sekarang ini aman karena $user pasti ada
+                        'product_id' => $item['product_id'],
+                        'quantity' => $item['quantity'],
+                        'total_price' => $item['price'] * $item['quantity'],
+                        'status' => 'menunggu_konfirmasi',
+                        'metode_pembayaran' => $metodePembayaran,
+                        'created_at' => $now,
+                        'updated_at' => $now
+                    ]);
+                }
 
-            Cart::where('user_id', $user->id)->delete();
-        });
+                // Kosongkan keranjang user setelah checkout sukses
+                Cart::where('user_id', $user->id)->delete();
+            });
 
-        return response()->json(['message' => 'Checkout berhasil!'], 200);
+            return response()->json([
+                'success' => true,
+                'message' => 'Checkout berhasil!'
+            ], 200);
+
+        } catch (\Exception $e) {
+            \Log::error('Error Checkout:', ['detail' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memproses pembuatan pesanan',
+                'error_detail' => $e->getMessage() // Matikan ini jika sudah dipublish ke production
+            ], 500);
+        }
     }
 
     public function confirmReceipt($id, Request $request)

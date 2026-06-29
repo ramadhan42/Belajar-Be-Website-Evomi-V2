@@ -37,6 +37,7 @@ Route::get('/contact', [ContactMessageController::class, 'index']);
 // Endpoint untuk mengirim pesan baru (POST)
 Route::post('/contact', [ContactMessageController::class, 'store']);
 
+
 Route::prefix('trackings')->group(function () {
     Route::get('/', [OrderTrackingController::class, 'index']); // Mendapatkan semua data
     Route::post('/', [OrderTrackingController::class, 'store']); // Membuat data baru
@@ -56,7 +57,7 @@ Route::prefix('admin')->group(function () {
     // RUTE BARU:
     Route::get('/users', [UserController::class, 'getAllUsers']);
     Route::get('/revenue', [OrderController::class, 'getTotalRevenue']);
-    
+
     Route::delete('/users/{id}', [UserController::class, 'destroyByAdmin']);
 });
 
@@ -89,6 +90,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/shopping-history', [UserController::class, 'shoppingHistory']);
 
     // Order Controller
+    // MASUKKAN KE SINI (Di dalam blok auth:sanctum)
     Route::post('/checkout', [OrderController::class, 'checkout']);
     Route::patch('/orders/{id}/confirm', [OrderController::class, 'confirmReceipt']);
     Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
@@ -98,3 +100,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/orders/{id}/status', [OrderController::class, 'updateStatus']);
 
 });
+
