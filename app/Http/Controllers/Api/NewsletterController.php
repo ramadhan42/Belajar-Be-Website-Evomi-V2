@@ -9,6 +9,30 @@ use Illuminate\Support\Facades\Validator;
 
 class NewsletterController extends Controller
 {
+    // === TAMBAHKAN FUNGSI INI ===
+    // Fungsi untuk mengambil semua data subscriber (Biasanya untuk Admin)
+    public function index()
+    {
+        try {
+            // Mengambil semua subscriber, diurutkan dari yang terbaru
+            $subscribers = Subscriber::orderBy('created_at', 'desc')->get();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Berhasil mengambil daftar subscriber.',
+                'data' => $subscribers
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan saat mengambil data.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    // ============================
+
     public function subscribe(Request $request)
     {
         // 1. Validasi input email

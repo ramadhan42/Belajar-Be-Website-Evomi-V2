@@ -59,6 +59,9 @@ Route::prefix('admin')->group(function () {
     Route::get('/revenue', [OrderController::class, 'getTotalRevenue']);
 
     Route::delete('/users/{id}', [UserController::class, 'destroyByAdmin']);
+
+    // Endpoint untuk melihat semua email subscriber
+    Route::get('/subscribers', [NewsletterController::class, 'index']);
 });
 
 // Protected Routes (Butuh Login)
