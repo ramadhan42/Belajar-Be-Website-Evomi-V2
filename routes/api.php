@@ -68,8 +68,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // Rute Manajemen Profil User, UserController
-    Route::get('/user/profile', [UserController::class, 'show']);     // Endpoint untuk Ambil Profil (Read)
-    Route::post('/user/profile', [UserController::class, 'update']);   // Endpoint untuk Update Profil (Update)
+    Route::get('/user/profile', [UserController::class, 'show']);       // Endpoint untuk Ambil Profil (Read)
+    Route::post('/user/profile', [UserController::class, 'update']);    // Endpoint untuk Update Profil (Update)
     Route::delete('/user/profile', [UserController::class, 'destroy']); // Endpoint untuk Hapus Akun (Delete)
     // Route::get('/profile', [UserController::class, 'profile']);
 
