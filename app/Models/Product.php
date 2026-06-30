@@ -2,48 +2,52 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
-    protected $fillable = [
-        'title',
-        'description',
-        'color', // <--- TAMBAHKAN 'color' DI SINI
-        'price',
-        'personality_type',
-        'top_note',
-        'middle_note',
-        'base_note',
-        'image_1',
-        'image_2',
-        'image_3',
-        'image_4',
-        'image_produk_belanja',
-        'bottle_size',
-        'perfume_type',
-        'gender',
-        'quantity',
-        'stock_status'
+    use HasFactory;
+
+    protected $guarded = ['id'];
+
+    // Menambahkan field virtual URL secara otomatis ke dalam response JSON
+    protected $appends = [
+        'image_1_url', 
+        'image_2_url', 
+        'image_3_url', 
+        'image_4_url', 
+        'image_produk_belanja_url'
     ];
 
-    // Memastikan tipe data response JSON sesuai
-    protected $casts = [
-        'price' => 'decimal:2',
-        'bottle_size' => 'integer',
-        'quantity' => 'integer',
-    ];
+    // Accessor untuk Image 1
+    public function getImage1UrlAttribute()
+    {
+        return $this->image_1 ? Storage::disk(config('filesystems.default'))->url($this->image_1) : null;
+    }
 
-    public function carts()
+    // Accessor untuk Image 2
+    public function getImage2UrlAttribute()
     {
-        return $this->hasMany(Cart::class);
+        return $this->image_2 ? Storage::disk(config('filesystems.default'))->url($this->image_2) : null;
     }
-    public function wishlists()
+
+    // Accessor untuk Image 3
+    public function getImage3UrlAttribute()
     {
-        return $this->hasMany(Wishlist::class);
+        return $this->image_3 ? Storage::disk(config('filesystems.default'))->url($this->image_3) : null;
     }
-    public function recommendedInQuizzes()
+
+    // Accessor untuk Image 4
+    public function getImage4UrlAttribute()
     {
-        return $this->hasMany(QuizAttempt::class, 'product_id');
+        return $this->image_4 ? Storage::disk(config('filesystems.default'))->url($this->image_4) : null;
+    }
+
+    // Accessor untuk Image Produk Belanja
+    public function getImageProdukBelanjaUrlAttribute()
+    {
+        return $this->image_produk_belanja ? Storage::disk(config('filesystems.default'))->url($this->image_produk_belanja) : null;
     }
 }

@@ -10,6 +10,14 @@ use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
+    protected $disk;
+
+    public function __construct()
+    {
+        // Mengambil disk default secara dinamis dari config/filesystems.php
+        $this->disk = config('filesystems.default');
+    }
+
     // READ: Ambil semua produk
     public function index()
     {
@@ -35,7 +43,7 @@ class ProductController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'color' => 'nullable|string|max:50', // <--- TAMBAHKAN VALIDASI COLOR DI SINI
+            'color' => 'nullable|string|max:50',
             'price' => 'required|numeric',
             'personality_type' => 'nullable|in:prestige,peaceful_calm,rebel_brave,sweet_shy',
             'top_note' => 'nullable|string|max:255',
@@ -59,11 +67,11 @@ class ProductController extends Controller
 
         $data = $request->except(['image_1', 'image_2', 'image_3', 'image_4', 'image_produk_belanja']);
 
-        // Upload gambar ke storage/app/public/products
+        // Upload gambar menggunakan disk dinamis (bisa local public / cloud s3)
         $imageFields = ['image_1', 'image_2', 'image_3', 'image_4', 'image_produk_belanja'];
         foreach ($imageFields as $field) {
             if ($request->hasFile($field)) {
-                $data[$field] = $request->file($field)->store('products', 'public');
+                $data[$field] = $request->file($field)->store('products', $this->disk);
             }
         }
 
@@ -88,7 +96,7 @@ class ProductController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'string|max:255',
             'description' => 'string',
-            'color' => 'nullable|string|max:50', // <--- TAMBAHKAN VALIDASI COLOR DI SINI
+            'color' => 'nullable|string|max:50',
             'price' => 'numeric',
             'personality_type' => 'nullable|in:prestige,peaceful_calm,rebel_brave,sweet_shy',
             'top_note' => 'nullable|string|max:255',
@@ -115,12 +123,12 @@ class ProductController extends Controller
         $imageFields = ['image_1', 'image_2', 'image_3', 'image_4', 'image_produk_belanja'];
         foreach ($imageFields as $field) {
             if ($request->hasFile($field)) {
-                // Hapus gambar lama
+                // Hapus gambar lama dari cloud/lokal jika ada
                 if ($product->$field) {
-                    Storage::disk('public')->delete($product->$field);
+                    Storage::disk($this->disk)->delete($product->$field);
                 }
                 // Simpan gambar baru
-                $data[$field] = $request->file($field)->store('products', 'public');
+                $data[$field] = $request->file($field)->store('products', $this->disk);
             }
         }
 
@@ -145,7 +153,7 @@ class ProductController extends Controller
         $imageFields = ['image_1', 'image_2', 'image_3', 'image_4', 'image_produk_belanja'];
         foreach ($imageFields as $field) {
             if ($product->$field) {
-                Storage::disk('public')->delete($product->$field);
+                Storage::disk($this->disk)->delete($product->$field);
             }
         }
 
