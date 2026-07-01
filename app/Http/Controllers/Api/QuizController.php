@@ -27,7 +27,7 @@ class QuizController extends Controller
         ]);
 
         $user = $request->user();
-        
+
         // Inisiasi skor
         $scores = [
             'prestige' => 0,
@@ -54,9 +54,9 @@ class QuizController extends Controller
 
             // Cari rekomendasi produk berdasarkan kepribadian dominan
             $recommendedProduct = Product::where('personality_type', $dominantPersonality)
-                                         ->where('stock_status', '!=', 'habis')
-                                         ->inRandomOrder()
-                                         ->first();
+                ->where('stock_status', '!=', 'habis')
+                ->inRandomOrder()
+                ->first();
 
             // Simpan Quiz Attempt
             $attempt = QuizAttempt::create([
